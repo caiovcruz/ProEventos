@@ -1,4 +1,7 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" *ngIf="showMenu()">
+<nav
+  class="navbar navbar-expand-lg navbar-light bg-white shadow-sm"
+  *ngIf="showMenu()"
+>
   <div class="container container-fluid">
     <a class="navbar-brand" routerLink="dashboard">
       <i class="fa fa-calendar-alt fa-lg"></i>
@@ -44,6 +47,15 @@
             data-toggle="dropdown"
             aria-controls="dropdown-animated"
           >
+            <a>
+              <img
+                src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRbezqZpEuwGSvitKy3wrwnth5kysKdRqBW54cAszm_wiutku3R"
+                name="aboutme"
+                width="28"
+                height="28"
+                class="rounded-circle"
+              />
+            </a>
             Caio
           </button>
           <ul
@@ -54,10 +66,10 @@
             aria-labelledby="button-animated"
           >
             <li role="menuitem" routerLinkActive="active">
-              <a class="dropdown-item" routerLink="user/perfil">Perfil</a>
+              <a class="dropdown-item" routerLink="user/perfil"><i class="fa fa-id-card me-1"></i>Perfil</a>
             </li>
             <li role="menuitem" routerLinkActive="active">
-              <a class="dropdown-item" routerLink="user/login">Sair</a>
+              <a class="dropdown-item" routerLink="user/login"><i class="fa fa-sign-out-alt me-1"></i>Sair</a>
             </li>
           </ul>
         </li>

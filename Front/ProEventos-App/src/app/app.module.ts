@@ -1,8 +1,8 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
-import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
@@ -32,43 +32,42 @@ import { RegistrationComponent } from './components/user/registration/registrati
 
 @NgModule({
   declarations: [
-      AppComponent,
-      TituloComponent,
-      EventosComponent,
-      PalestrantesComponent,
-      ContatosComponent,
-      DashboardComponent,
-      PerfilComponent,
-      NavComponent,
-      DateTimeFormatPipe,
-      EventoDetalheComponent,
-      EventoListaComponent,
-      UserComponent,
-      LoginComponent,
-      RegistrationComponent
-   ],
+    AppComponent,
+    TituloComponent,
+    EventosComponent,
+    PalestrantesComponent,
+    ContatosComponent,
+    DashboardComponent,
+    PerfilComponent,
+    NavComponent,
+    DateTimeFormatPipe,
+    EventoDetalheComponent,
+    EventoListaComponent,
+    UserComponent,
+    LoginComponent,
+    RegistrationComponent,
+  ],
   imports: [
-      BrowserModule,
-      FormsModule,
-      AppRoutingModule,
-      HttpClientModule,
-      BrowserAnimationsModule,
-      CollapseModule.forRoot(),
-      TooltipModule.forRoot(),
-      BsDropdownModule.forRoot(),
-      ModalModule.forRoot(),
-      ToastrModule.forRoot({
-        timeOut: 3000,
-        positionClass: 'toast-bottom-right',
-        preventDuplicates: true,
-        progressBar: true
-      }),
-      NgxSpinnerModule
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AppRoutingModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    CollapseModule.forRoot(),
+    TooltipModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    ModalModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+      progressBar: true,
+    }),
+    NgxSpinnerModule,
   ],
-  providers: [
-    EventoService
-  ],
+  providers: [EventoService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule { }
+export class AppModule {}
