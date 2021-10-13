@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using ProEventos.Persistence;
-using ProEventos.Domain;
-using ProEventos.Persistence.Contextos;
 using ProEventos.Application.Contratos;
 using Microsoft.AspNetCore.Http;
+using ProEventos.Application.DTOs;
 
 namespace ProEventos.API.Controllers
 {
@@ -22,19 +17,19 @@ namespace ProEventos.API.Controllers
             _eventoService = eventoService;
         }
 
-        #region GetAsync
+        #region Get
         /// <summary>
-        /// GetAsync
+        /// Get
         /// </summary>
         /// <param name="includePalestrantes"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAsync(bool includePalestrantes = false)
+        public async Task<IActionResult> Get(bool includePalestrantes = false)
         {
             try
             {
                 var eventos = await _eventoService.GetAllEventosAsync(includePalestrantes);
-                if (eventos == null) return NotFound("Nenhum evento encontrado.");
+                if (eventos == null) return NoContent();
 
                 return Ok(eventos);
             }
@@ -53,12 +48,12 @@ namespace ProEventos.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id, bool includePalestrantes = false)
+        public async Task<IActionResult> GetById(int id, bool includePalestrantes = false)
         {
             try
             {
                 var evento = await _eventoService.GetEventoByIdAsync(id, includePalestrantes);
-                if (evento == null) return NotFound("Evento por id não encontrado.");
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -82,7 +77,7 @@ namespace ProEventos.API.Controllers
             try
             {
                 var eventos = await _eventoService.GetAllEventosByTemaAsync(tema, includePalestrantes);
-                if (eventos == null) return NotFound("Eventos por tema não encontrado.");
+                if (eventos == null) return NoContent();
 
                 return Ok(eventos);
             }
@@ -100,12 +95,12 @@ namespace ProEventos.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> PostAsync(Evento model)
+        public async Task<IActionResult> Post(EventoDTO model)
         {
             try
             {
                 var evento = await _eventoService.AddEvento(model);
-                if (evento == null) return BadRequest("Erro ao tentar adicionar evento.");
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -124,12 +119,12 @@ namespace ProEventos.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Evento model)
+        public async Task<IActionResult> Put(int id, EventoDTO model)
         {
             try
             {
                 var evento = await _eventoService.UpdateEvento(id, model);
-                if (evento == null) return BadRequest("Erro ao tentar atualizar evento.");
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -153,7 +148,11 @@ namespace ProEventos.API.Controllers
         {
             try
             {
-                return await _eventoService.DeleteEvento(id) ? Ok("Deletado") : BadRequest("Evento não deletado");
+                var evento = await _eventoService.GetEventoByIdAsync(id, true);
+                if (evento == null) return NoContent();
+
+                return await _eventoService.DeleteEvento(id) ? Ok("Deletado") :
+                    throw new Exception("Ocorreu um problema não específico ao tentar deletar Evento.");
             }
             catch (Exception ex)
             {
