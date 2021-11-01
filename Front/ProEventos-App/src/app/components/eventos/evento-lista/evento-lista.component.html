@@ -52,7 +52,7 @@
         >
           <td class="d-none d-md-table-cell">
             <img
-              src="/assets/{{ evento.imagemURL }}"
+              [src]="pathImagem(evento.imagemURL)"
               alt="{{ evento.imagemURL }}"
               [collapse]="!exibirImagem"
               [isAnimated]="true"
