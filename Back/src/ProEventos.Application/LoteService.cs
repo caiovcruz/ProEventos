@@ -11,13 +11,11 @@ namespace ProEventos.Application
 {
     public class LoteService : ILoteService
     {
-        private readonly IGeralPersist _geralPersist;
         private readonly ILotePersist _lotePersist;
         private readonly IMapper _mapper;
-        public LoteService(IGeralPersist geralPersist, ILotePersist lotePersist, IMapper mapper)
+        public LoteService(ILotePersist lotePersist, IMapper mapper)
         {
             _lotePersist = lotePersist;
-            _geralPersist = geralPersist;
             _mapper = mapper;
         }
 
@@ -72,9 +70,9 @@ namespace ProEventos.Application
                 var lote = _mapper.Map<Lote>(model);
                 lote.EventoId = eventoId;
 
-                _geralPersist.Add<Lote>(lote);
+                _lotePersist.Add<Lote>(lote);
 
-                await _geralPersist.SaveChangesAsync();
+                await _lotePersist.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -97,9 +95,9 @@ namespace ProEventos.Application
                 _mapper.Map(loteAtualizado, loteAtual);
                 loteAtual.EventoId = eventoId;
 
-                _geralPersist.Update<Lote>(loteAtual);
+                _lotePersist.Update<Lote>(loteAtual);
 
-                await _geralPersist.SaveChangesAsync();
+                await _lotePersist.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -124,8 +122,8 @@ namespace ProEventos.Application
                 var lote = await _lotePersist.GetLoteByIdsAsync(eventoId, loteId);
                 if (lote == null) throw new Exception("Lote para delete não encontrado.");
 
-                _geralPersist.Delete<Lote>(lote);
-                return await _geralPersist.SaveChangesAsync();
+                _lotePersist.Delete<Lote>(lote);
+                return await _lotePersist.SaveChangesAsync();
             }
             catch (System.Exception)
             {

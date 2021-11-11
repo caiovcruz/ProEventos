@@ -7,10 +7,10 @@ using ProEventos.Persistence.Contratos;
 
 namespace ProEventos.Persistence
 {
-    public class LotePersist : ILotePersist
+    public class LotePersist : GeralPersist, ILotePersist
     {
         private readonly ProEventosContext _context;
-        public LotePersist(ProEventosContext context)
+        public LotePersist(ProEventosContext context) : base(context)
         {
             _context = context;
             //_context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;

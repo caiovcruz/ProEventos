@@ -7,10 +7,10 @@ using ProEventos.Persistence.Contratos;
 
 namespace ProEventos.Persistence
 {
-    public class PalestrantePersist : IPalestrantePersist
+    public class PalestrantePersist : GeralPersist, IPalestrantePersist
     {
         private readonly ProEventosContext _context;
-        public PalestrantePersist(ProEventosContext context)
+        public PalestrantePersist(ProEventosContext context) :  base(context)
         {
             _context = context;
 
@@ -60,7 +60,7 @@ namespace ProEventos.Persistence
             }
 
             query = query.OrderBy(p => p.Id)
-                         .Where(p => p.Nome.ToLower().Contains(nome.ToLower()));
+                         .Where(p => p.User.PrimeiroNome.ToLower().Contains(nome.ToLower()));
 
             return await query.AsNoTracking().ToArrayAsync();
         }
