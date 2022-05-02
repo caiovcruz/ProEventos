@@ -66,7 +66,7 @@ namespace ProEventos.API
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-                
+
             });
 
             services.AddControllers()
@@ -134,8 +134,6 @@ namespace ProEventos.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProEventos.API v1"));
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseAuthentication();
@@ -144,6 +142,8 @@ namespace ProEventos.API
             app.UseCors(x => x.AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowAnyOrigin());
+
+            app.UseHttpsRedirection();
 
             app.UseStaticFiles(new StaticFileOptions()
             {

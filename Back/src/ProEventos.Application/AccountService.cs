@@ -59,7 +59,7 @@ namespace ProEventos.Application
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<UserDTO> CreateAccountAsync(UserDTO model)
+        public async Task<UserUpdateDTO> CreateAccountAsync(UserDTO model)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace ProEventos.Application
 
                 if (result.Succeeded)
                 {
-                    return _mapper.Map<UserDTO>(user);
+                    return _mapper.Map<UserUpdateDTO>(user);
                 }
 
                 return null;
@@ -116,10 +116,15 @@ namespace ProEventos.Application
                 var user = await _userPersist.GetUserByUserNameAsync(model.UserName);
                 if (user == null) return null;
 
+                model.Id = user.Id;
+
                 _mapper.Map(model, user);
 
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!string.IsNullOrEmpty(model.Password))
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    await _userManager.ResetPasswordAsync(user, token, model.Password);
+                }
 
                 _userPersist.Update<User>(user);
 

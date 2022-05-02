@@ -6,7 +6,7 @@ import { take } from 'rxjs/operators';
 
 @Injectable()
 export class LoteService {
-  baseURL = 'https://localhost:5001/api/lotes';
+  baseURL = 'api/lotes';
   constructor(private http: HttpClient) {}
 
   public getLotesByEventoId(eventoId: number): Observable<Lote[]> {

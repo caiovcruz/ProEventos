@@ -75,7 +75,8 @@
               "browserTarget": "ProEventos-App:build:production"
             },
             "development": {
-              "browserTarget": "ProEventos-App:build:development"
+              "browserTarget": "ProEventos-App:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

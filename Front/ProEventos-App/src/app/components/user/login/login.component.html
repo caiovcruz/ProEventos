@@ -15,32 +15,53 @@
     </div>
     <h1>Faça seu login<br />na plataforma</h1>
   </div>
-  <div class="text-center shadow-sm bg-white rounded p-5">
-    <form class="form-signin">
+  <div class="text-start shadow-sm bg-white rounded p-5">
+    <form
+      [formGroup]="form"
+      #loginForm="ngForm"
+      class="form-signin"
+      (ngSubmit)="onSubmit()"
+    >
       <div class="mb-2">
         <label for="username" class="sr-only">Usuário</label>
         <input
+          [(ngModel)]="user.userName"
+          [ngClass]="cssValidator(f.userName)"
           type="email"
           id="username"
           class="form-control"
+          formControlName="userName"
           placeholder="Usuário"
           name="username"
           required
         />
+        <div *ngIf="f.userName.errors?.required" class="invalid-feedback">
+          Usuário é obrigatório.
+        </div>
       </div>
       <div class="mb-2">
         <label for="password" class="sr-only">Senha</label>
         <input
+          [(ngModel)]="user.password"
+          [ngClass]="cssValidator(f.password)"
           type="password"
           id="password"
           class="form-control"
+          formControlName="password"
           placeholder="Senha"
           name="password"
           required
         />
+        <div *ngIf="f.password.errors?.required" class="invalid-feedback">
+          Senha é obrigatória.
+        </div>
       </div>
       <div class="d-grid gap-2">
-        <button class="btn btn-lg btn-primary btn-block" type="submit">
+        <button
+        [disabled]="loginForm.invalid"
+          class="btn btn-lg btn-primary btn-block"
+          type="submit"
+        >
           Entrar
         </button>
       </div>
