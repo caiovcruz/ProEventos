@@ -17,7 +17,6 @@ export class NavComponent implements OnInit {
         this.accountService.currentUser$.subscribe(
           (value) => (this.usuarioLogado = value !== null)
         );
-        console.log(this.usuarioLogado);
       }
     });
   }

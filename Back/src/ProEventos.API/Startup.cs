@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace ProEventos.API
 {
@@ -147,7 +148,7 @@ namespace ProEventos.API
 
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
+                FileProvider = new PhysicalFileProvider(Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Resources")).ToString()),
                 RequestPath = new PathString("/Resources")
             });
 
@@ -155,6 +156,9 @@ namespace ProEventos.API
             {
                 endpoints.MapControllers();
             });
+
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.CreateSpecificCulture("en-US");
         }
     }
 }

@@ -5,6 +5,7 @@ using ProEventos.Application.Contratos;
 using ProEventos.Application.DTOs;
 using ProEventos.Domain;
 using ProEventos.Persistence.Contratos;
+using ProEventos.Persistence.Models;
 
 namespace ProEventos.Application
 {
@@ -115,33 +116,25 @@ namespace ProEventos.Application
         /// <summary>
         /// GetAllEventosAsync
         /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="pageParams"></param>
         /// <param name="includePalestrantes"></param>
         /// <returns></returns>
-        public async Task<EventoDTO[]> GetAllEventosAsync(int userId, bool includePalestrantes = false)
+        public async Task<PageList<EventoDTO>> GetAllEventosAsync(int userId, PageParams pageParams, bool includePalestrantes = false)
         {
             try
             {
-                var eventos = await _eventoPersist.GetAllEventosAsync(userId, includePalestrantes);
+                var eventos = await _eventoPersist.GetAllEventosAsync(userId, pageParams, includePalestrantes);
                 if (eventos == null) return null;
 
-                return _mapper.Map<EventoDTO[]>(eventos);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
+                var eventosMapped = _mapper.Map<PageList<EventoDTO>>(eventos);
 
-        #region GetAllEventosByTemaAsync
-        public async Task<EventoDTO[]> GetAllEventosByTemaAsync(int userId, string tema, bool includePalestrantes = false)
-        {
-            try
-            {
-                var eventos = await _eventoPersist.GetAllEventosByTemaAsync(userId, tema, includePalestrantes);
-                if (eventos == null) return null;
+                eventosMapped.CurrentPage = eventos.CurrentPage;
+                eventosMapped.TotalPages = eventos.TotalPages;
+                eventosMapped.PageSize = eventos.PageSize;
+                eventosMapped.TotalCount = eventos.TotalCount;
 
-                return _mapper.Map<EventoDTO[]>(eventos);
+                return eventosMapped;
             }
             catch (Exception ex)
             {

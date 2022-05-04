@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using ProEventos.API.Extensions;
+using ProEventos.Persistence.Models;
 
 namespace ProEventos.API.Controllers
 {
@@ -36,12 +37,14 @@ namespace ProEventos.API.Controllers
         /// <param name="includePalestrantes"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Get(bool includePalestrantes = false)
+        public async Task<IActionResult> Get([FromQuery] PageParams pageParams)
         {
             try
             {
-                var eventos = await _eventoService.GetAllEventosAsync(User.GetUserId(), includePalestrantes);
+                var eventos = await _eventoService.GetAllEventosAsync(User.GetUserId(), pageParams, true);
                 if (eventos == null) return NoContent();
+
+                Response.AddPagination(eventos.CurrentPage, eventos.PageSize, eventos.TotalCount, eventos.TotalPages);
 
                 return Ok(eventos);
             }
@@ -73,30 +76,6 @@ namespace ProEventos.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
                 $"Erro ao tentar recuperar evento. Erro: {ex.Message}");
-            }
-        }
-        #endregion
-
-        #region GetByTema
-        /// <summary>
-        /// GetByTema
-        /// </summary>
-        /// <param name="tema"></param>
-        /// <returns></returns>
-        [HttpGet("tema/{tema}")]
-        public async Task<IActionResult> GetByTema(string tema, bool includePalestrantes = false)
-        {
-            try
-            {
-                var eventos = await _eventoService.GetAllEventosByTemaAsync(User.GetUserId(), tema, includePalestrantes);
-                if (eventos == null) return NoContent();
-
-                return Ok(eventos);
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError,
-                $"Erro ao tentar recuperar eventos. Erro: {ex.Message}");
             }
         }
         #endregion

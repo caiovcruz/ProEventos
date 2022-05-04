@@ -6,6 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { Evento } from '@app/models/Evento';
 import { EventoService } from '@app/services/evento.service';
 import { environment } from '@environments/environment';
+import { PaginatedResult, Pagination } from '@app/models/pagination';
+import { PageChangedEvent } from 'ngx-bootstrap/pagination';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-evento-lista',
@@ -15,34 +19,14 @@ import { environment } from '@environments/environment';
 export class EventoListaComponent implements OnInit {
   modalRef?: BsModalRef;
   public eventos: Evento[] = [];
-  public eventosFiltrados: Evento[] = [];
   public eventoId: number = 0;
+  public pagination = {} as Pagination;
 
   public larguraImagem = 150;
   public margemImagem = 2;
   public exibirImagem = true;
 
-  private filtroListado = '';
-
-  public get filtroLista(): string {
-    return this.filtroListado;
-  }
-
-  public set filtroLista(value: string) {
-    this.filtroListado = value;
-    this.eventosFiltrados = this.filtroLista
-      ? this.filtrarEventos(this.filtroLista)
-      : this.eventos;
-  }
-
-  public filtrarEventos(filtrarPor: string): Evento[] {
-    filtrarPor = filtrarPor.toLocaleLowerCase();
-    return this.eventos.filter(
-      (evento: any) =>
-        evento.tema.toLocaleLowerCase().indexOf(filtrarPor) !== -1 ||
-        evento.local.toLocaleLowerCase().indexOf(filtrarPor) !== -1
-    );
-  }
+  public termChanged: Subject<string> = new Subject<string>();
 
   constructor(
     private eventoService: EventoService,
@@ -53,6 +37,12 @@ export class EventoListaComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
+    this.pagination = {
+      currentPage: 1,
+      itemsPerPage: 3,
+      totalItems: 1,
+    } as Pagination;
+
     this.carregarEventos();
   }
 
@@ -61,23 +51,39 @@ export class EventoListaComponent implements OnInit {
   }
 
   public pathImagem(imagemURL: string): string {
-    return (imagemURL !== '')
-    ? `${environment.apiURL + environment.pathImagesEvento + imagemURL}`
-    : 'assets/img/semImagem.png';
+    return imagemURL !== ''
+      ? `${environment.apiURL + environment.pathImagesEvento + imagemURL}`
+      : 'assets/img/semImagem.png';
   }
 
-  public carregarEventos(): void {
+  public carregarEventos(term?: any): void {
     this.spinner.show();
-    this.eventoService.getEventos().subscribe(
-      (eventos: Evento[]) => {
-        this.eventos = eventos;
-        this.eventosFiltrados = this.eventos;
-      },
-      (error: any) => {
-        console.error(error);
-        this.toastr.error('Erro ao carregar os Eventos.', 'Erro!');
-      }
-    ).add(() => this.spinner.hide());
+    this.eventoService
+      .getEventos(
+        this.pagination.currentPage,
+        this.pagination.itemsPerPage,
+        term
+      )
+      .subscribe(
+        (response: PaginatedResult<Evento[]>) => {
+          this.eventos = response.result;
+          this.pagination = response.pagination;
+        },
+        (error: any) => {
+          console.error(error);
+          this.toastr.error('Erro ao carregar os Eventos.', 'Erro!');
+        }
+      )
+      .add(() => this.spinner.hide());
+  }
+
+  public filtrarEventos(event: any): void {
+    if (this.termChanged.observers.length === 0) {
+      this.termChanged.pipe(debounceTime(1000)).subscribe((filterBy) => {
+        this.carregarEventos(filterBy);
+      });
+    }
+    this.termChanged.next(event.value);
   }
 
   public openModal(event: any, template: TemplateRef<any>, eventoId: number) {
@@ -89,18 +95,27 @@ export class EventoListaComponent implements OnInit {
   public confirm(): void {
     this.modalRef?.hide();
     this.spinner.show();
-    this.eventoService.delete(this.eventoId).subscribe(
-      (result: any) => {
-        if (result.message === 'Deletado') {
-          this.toastr.success(`O Evento #${this.eventoId} foi deletado com sucesso.`, 'Deletado!');
-          this.carregarEventos();
+    this.eventoService
+      .delete(this.eventoId)
+      .subscribe(
+        (result: any) => {
+          if (result.message === 'Deletado') {
+            this.toastr.success(
+              `O Evento #${this.eventoId} foi deletado com sucesso.`,
+              'Deletado!'
+            );
+            this.carregarEventos();
+          }
+        },
+        (error: any) => {
+          console.error(error);
+          this.toastr.error(
+            `Erro ao deletar o Evento #${this.eventoId}.`,
+            'Erro!'
+          );
         }
-      },
-      (error: any) => {
-        console.error(error);
-        this.toastr.error(`Erro ao deletar o Evento #${this.eventoId}.`, 'Erro!');
-      }
-    ).add(() => this.spinner.hide());
+      )
+      .add(() => this.spinner.hide());
   }
 
   public decline(): void {
@@ -109,5 +124,10 @@ export class EventoListaComponent implements OnInit {
 
   public detalheEvento(id: number): void {
     this.router.navigate([`eventos/detalhe/${id}`]);
+  }
+
+  public pageChanged(event: PageChangedEvent): void {
+    this.pagination.currentPage = event.page;
+    this.carregarEventos();
   }
 }

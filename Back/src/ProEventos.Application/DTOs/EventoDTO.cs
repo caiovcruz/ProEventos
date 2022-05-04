@@ -21,7 +21,6 @@ namespace ProEventos.Application.DTOs
         [Range(1, 120000)]
         public int QtdPessoas { get; set; }
 
-        [Required]
         [RegularExpression(@".*\.(gif|jpe?g|bmp|png)$", ErrorMessage = "The field {0} must match (gif, jpg, jpeg, bmp, png).")]
         public string ImagemURL { get; set; }
 
