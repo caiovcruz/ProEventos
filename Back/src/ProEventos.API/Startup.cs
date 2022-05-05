@@ -23,6 +23,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
+using ProEventos.API.Helpers;
 
 namespace ProEventos.API
 {
@@ -84,11 +85,16 @@ namespace ProEventos.API
             services.AddScoped<ILoteService, LoteService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IPalestranteService, PalestranteService>();
+            services.AddScoped<IRedeSocialService, RedeSocialService>();
+            services.AddScoped<IUtil, Util>();
 
             services.AddScoped<IGeralPersist, GeralPersist>();
             services.AddScoped<IEventoPersist, EventoPersist>();
             services.AddScoped<ILotePersist, LotePersist>();
             services.AddScoped<IUserPersist, UserPersist>();
+            services.AddScoped<IPalestrantePersist, PalestrantePersist>();
+            services.AddScoped<IRedeSocialPersist, RedeSocialPersist>();
 
             services.AddCors();
             services.AddSwaggerGen(options =>

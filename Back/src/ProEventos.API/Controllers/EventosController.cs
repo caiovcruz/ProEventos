@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using ProEventos.API.Extensions;
 using ProEventos.Persistence.Models;
+using ProEventos.API.Helpers;
 
 namespace ProEventos.API.Controllers
 {
@@ -18,23 +19,25 @@ namespace ProEventos.API.Controllers
     public class EventosController : ControllerBase
     {
         private readonly IEventoService _eventoService;
-        private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IAccountService _accountService;
+        private readonly IUtil _util;
+
+        private readonly string _destination = "Images/Eventos";
 
         public EventosController(IEventoService eventoService,
-                                 IWebHostEnvironment hostEnvironment,
-                                 IAccountService accountService)
+                                 IAccountService accountService,
+                                 IUtil util)
         {
-            _hostEnvironment = hostEnvironment;
-            _accountService = accountService;
             _eventoService = eventoService;
+            _accountService = accountService;
+            _util = util;
         }
 
         #region Get
         /// <summary>
         /// Get
         /// </summary>
-        /// <param name="includePalestrantes"></param>
+        /// <param name="pageParams"></param>
         /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] PageParams pageParams)
@@ -63,11 +66,11 @@ namespace ProEventos.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id, bool includePalestrantes = false)
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
-                var evento = await _eventoService.GetEventoByIdAsync(User.GetUserId(), id, includePalestrantes);
+                var evento = await _eventoService.GetEventoByIdAsync(User.GetUserId(), id, true);
                 if (evento == null) return NoContent();
 
                 return Ok(evento);
@@ -84,6 +87,7 @@ namespace ProEventos.API.Controllers
         /// <summary>
         /// Post
         /// </summary>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Post(EventoDTO model)
@@ -105,8 +109,9 @@ namespace ProEventos.API.Controllers
 
         #region UploadImage
         /// <summary>
-        /// Post
+        /// UploadImage
         /// </summary>
+        /// <param name="eventoId"></param>
         /// <returns></returns>
         [HttpPost("upload-image/{eventoId}")]
         public async Task<IActionResult> UploadImage(int eventoId)
@@ -119,8 +124,8 @@ namespace ProEventos.API.Controllers
                 var file = Request.Form.Files[0];
                 if (file.Length > 0)
                 {
-                    DeleteImage(evento.ImagemURL);
-                    evento.ImagemURL = await SaveImage(eventoId, file);
+                    _util.DeleteImage(evento.ImagemURL, _destination);
+                    evento.ImagemURL = await _util.SaveImage(file, _destination);
                 }
 
                 var eventoRetorno = await _eventoService.UpdateEvento(User.GetUserId(), eventoId, evento);
@@ -133,33 +138,6 @@ namespace ProEventos.API.Controllers
                 $"Erro ao fazer upload da imagem. Erro: {ex.Message}");
             }
         }
-
-        [NonAction]
-        public void DeleteImage(string imageName)
-        {
-            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @"Resources/Images/Eventos", imageName);
-            if (System.IO.File.Exists(imagePath))
-                System.IO.File.Delete(imagePath);
-        }
-
-        [NonAction]
-        public async Task<string> SaveImage(int eventoId, IFormFile imageFile)
-        {
-            string pathImagesEvento = Path.Combine(_hostEnvironment.ContentRootPath, @"Resources/Images/Eventos");
-
-            if (!Directory.Exists(pathImagesEvento)) Directory.CreateDirectory(pathImagesEvento);
-
-            string imageName = $"{eventoId}{Path.GetExtension(imageFile.FileName)}";
-
-            var imagePath = Path.Combine(pathImagesEvento, imageName);
-
-            using (var fileStream = new FileStream(imagePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
-
-            return imageName;
-        }
         #endregion
 
         #region Put
@@ -167,6 +145,7 @@ namespace ProEventos.API.Controllers
         /// Put
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, EventoDTO model)
@@ -203,7 +182,7 @@ namespace ProEventos.API.Controllers
 
                 if (await _eventoService.DeleteEvento(User.GetUserId(), id))
                 {
-                    DeleteImage(evento.ImagemURL);
+                    _util.DeleteImage(evento.ImagemURL, _destination);
                     return Ok(new { message = "Deletado" });
                 }
                 else
