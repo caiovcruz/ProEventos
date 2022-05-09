@@ -25,6 +25,8 @@ namespace ProEventos.API.Helpers
 
             imageName = $"{imageName}{DateTime.UtcNow.ToString("yymmssfff")}{Path.GetExtension(imageFile.FileName)}";
 
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), @$"Resources/{destination}"));
+
             var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @$"Resources/{destination}", imageName);
 
             using (var fileStream = new FileStream(imagePath, FileMode.Create))
@@ -37,9 +39,12 @@ namespace ProEventos.API.Helpers
 
         public void DeleteImage(string imageName, string destination)
         {
-            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @$"Resources/{destination}", imageName);
-            if (System.IO.File.Exists(imagePath))
-                System.IO.File.Delete(imagePath);
+            if (!string.IsNullOrEmpty(imageName))
+            {
+                var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @$"Resources/{destination}", imageName);
+                if (System.IO.File.Exists(imagePath))
+                    System.IO.File.Delete(imagePath);
+            }
         }
     }
 }

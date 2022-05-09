@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   apiURL: 'https://localhost:5001/',
-  pathImagesEvento: 'resources/images/eventos/'
+  pathImagesEvento: 'resources/images/eventos/',
+  pathImagesPerfil: 'resources/images/perfil/',
 };
 
 /*
